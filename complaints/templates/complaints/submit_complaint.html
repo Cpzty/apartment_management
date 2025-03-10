@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Submit a Complaint</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="id_title" class="form-label">Complaint Title</label>
+        <input type="text" name="title" value="{{ form.title.value|default_if_none:'' }}" 
+               class="form-control" id="id_title" placeholder="Enter complaint title">
+    </div>
+
+    <div class="mb-3">
+        <label for="id_description" class="form-label">Complaint Description</label>
+        <textarea name="description" class="form-control" id="id_description" placeholder="Describe your issue">{{ form.description.value|default_if_none:'' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="id_category" class="form-label">Category</label>
+        <select name="category" class="form-select" id="id_category">
+            <option value="" disabled selected>Select a category</option>
+            {% for choice in form.category.field.choices %}
+                <option value="{{ choice.0 }}" {% if form.category.value == choice.0 %}selected{% endif %}>
+                    {{ choice.1 }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="id_image" class="form-label">Upload Image</label>
+        <input type="file" name="image" class="form-control" id="id_image">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Sus solicitudes</h2>
+  <div class="list-group">
+    {% for complaint in complaints %}
+      <div class="list-group-item border mb-3" style="border-radius: 10px;">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong>{{ complaint.title }}</strong> - {{ complaint.get_status_display }}
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <small class="text-muted">Fecha de creación: {{ complaint.created_at|date:"F j, Y" }}</small>
+          <button class="btn btn-info btn-sm toggle-details" data-id="{{ complaint.id }}">Ver detalles</button>
+        </div>
+
+        <div id="details-{{ complaint.id }}" class="complaint-details mt-2" style="display: none;">
+          <p><strong>Description:</strong> {{ complaint.description }}</p>
+          {% if complaint.image %}
+            <img src="{{ complaint.image.url }}" alt="Complaint Image" class="img-fluid" style="max-width: 300px;">
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p>No se han ingresado solicitudes aun.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>Welcome to the Apartment Management System</h2>
+        <p>Manage complaints, issues, and much more.</p>
+
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}!</p>
+            <li class="nav-item no-bullet">
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-success">Register</a>
+        {% endif %}
+    </div>
+{% endblock %}
