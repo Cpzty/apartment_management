@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Sus solicitudes</h2>
+  <h2>Solicitudes</h2>
+
+  <!-- Filter Form -->
+  <form method="GET" class="mb-3">
+    <div class="input-group">
+      <select name="status" class="form-select">
+        <option value="" {% if not selected_status %}selected{% endif %}>Todas</option>
+        <option value="pendiente" {% if selected_status == "pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="en_progreso" {% if selected_status == "en_progreso" %}selected{% endif %}>En progreso</option>
+        <option value="resuelto" {% if selected_status == "resuelto" %}selected{% endif %}>Resuelto</option>
+        <option value="rechazado" {% if selected_status == "rechazado" %}selected{% endif %}>Rechazado</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+  </form>
+
   <div class="list-group">
     {% for complaint in complaints %}
       <div class="list-group-item border mb-3" style="border-radius: 10px;">
@@ -10,19 +25,38 @@
         </div>
 
         <div class="d-flex justify-content-between">
-          <small class="text-muted">Fecha de creación: {{ complaint.created_at|date:"F j, Y" }}</small>
+          <small class="text-muted">Fecha de creación: {{ complaint.created_at|date:"j \d\e F \d\e Y" }}</small>
           <button class="btn btn-info btn-sm toggle-details" data-id="{{ complaint.id }}">Ver detalles</button>
         </div>
 
         <div id="details-{{ complaint.id }}" class="complaint-details mt-2" style="display: none;">
-          <p><strong>Description:</strong> {{ complaint.description }}</p>
+          <p><strong>Descripción:</strong> {{ complaint.description }}</p>
           {% if complaint.image %}
-            <img src="{{ complaint.image.url }}" alt="Complaint Image" class="img-fluid" style="max-width: 300px;">
+            <img src="{{ complaint.image.url }}" alt="Imagen de la solicitud" class="img-fluid" style="max-width: 300px;">
           {% endif %}
         </div>
       </div>
     {% empty %}
-      <p>No se han ingresado solicitudes aun.</p>
+      <p>No se encontraron solicitudes con este estado.</p>
     {% endfor %}
   </div>
+
+  <!-- Pagination -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-4">
+      {% if complaints.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1&status={{ selected_status }}">Primera</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ complaints.previous_page_number }}&status={{ selected_status }}">Anterior</a></li>
+      {% endif %}
+
+      <li class="page-item disabled">
+        <span class="page-link">Página {{ complaints.number }} de {{ complaints.paginator.num_pages }}</span>
+      </li>
+
+      {% if complaints.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ complaints.next_page_number }}&status={{ selected_status }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ complaints.paginator.num_pages }}&status={{ selected_status }}">Última</a></li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endblock %}

@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Case, When, Value, IntegerField
+from django.core.paginator import Paginator
 from .forms import CustomUserCreationForm  # Import the new form
 
 from .models import Complaint
@@ -60,7 +62,23 @@ def submit_complaint(request):
 
 @login_required
 def complaint_list(request):
-    complaints = Complaint.objects.all()  # Only show user complaints
-    return render(request, 'complaints/complaint_list.html', {'complaints': complaints})
+    status_filter = request.GET.get("status")
+    complaints = Complaint.objects.all().annotate(
+        custom_order=Case(
+            When(status='pendiente', then=Value(1)),
+            When(status='en_progreso', then=Value(2)),
+            When(status='resuelto', then=Value(3)),
+            default=Value(4),  # Just in case there are other statuses
+            output_field=IntegerField()
+        )
+    ).order_by('custom_order', '-created_at')  # Order first by status, then newest first
+    if status_filter:
+        complaints = complaints.filter(status=status_filter)
+    status_order = {"pendiente": 1, "en_progreso": 2, "resuelto": 3, "rechazado": 4}
+    complaints = sorted(complaints, key=lambda c: status_order.get(c.status, 99))
+    paginator = Paginator(complaints, 10)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'complaints/complaint_list.html', {'complaints': page_obj})
 
 
