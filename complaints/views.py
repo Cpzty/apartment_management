@@ -60,7 +60,7 @@ def submit_complaint(request):
 
 @login_required
 def complaint_list(request):
-    complaints = Complaint.objects.filter(user=request.user)  # Only show user complaints
+    complaints = Complaint.objects.all()  # Only show user complaints
     return render(request, 'complaints/complaint_list.html', {'complaints': complaints})
 
 
